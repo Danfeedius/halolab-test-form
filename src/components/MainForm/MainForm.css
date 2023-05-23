@@ -1,0 +1,38 @@
+.main-form {
+  display: flex;
+  flex-direction: column;
+
+  padding: 25px;
+}
+
+.input-label {
+  text-align: start;
+  font-weight: bold;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 6px;
+  align-items: center;
+  min-height: 58px;
+}
+
+.input,
+.select {
+  display: flex;
+  width: 100%;
+  height: 35px;
+  padding: 0px 10px;
+}
+
+.select {
+  width: calc(110%);
+}
+
+.error-message {
+  width: 200px;
+  padding: 4px 10px;
+  color: white;
+  background-color: coral;
+}

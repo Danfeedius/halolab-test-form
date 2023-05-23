@@ -1,9 +1,10 @@
 import './App.css';
+import MainForm from './components/MainForm';
 
 function App() {
   return (
     <>
-      <h1>React app</h1>
+      <MainForm />
     </>
   );
 }
