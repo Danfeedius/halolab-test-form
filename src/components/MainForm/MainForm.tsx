@@ -1,10 +1,19 @@
 import './MainForm.css';
+import { VALIDATION_ERROR_MESSAGES } from './constants';
 
 import { useMainForm } from './hooks';
 
 export const MainForm = () => {
-  const { register, handleSubmit, onSubmit, errors, cities, filteredDoctors, filteredDoctorSpecialties } =
-    useMainForm();
+  const {
+    register,
+    handleSubmit,
+    onSubmit,
+    errors,
+    cities,
+    filteredDoctors,
+    filteredDoctorSpecialties,
+    isEmailRequired,
+  } = useMainForm();
 
   return (
     <form className="main-form" onSubmit={handleSubmit(onSubmit)}>
@@ -19,9 +28,11 @@ export const MainForm = () => {
           placeholder="Name"
           {...register('name', { required: true, pattern: /^\D+$/ })}
         />
-        {errors.name && errors.name.type == 'required' && <span className="error-message">This field is required</span>}
+        {errors.name && errors.name.type == 'required' && (
+          <span className="error-message">{VALIDATION_ERROR_MESSAGES.REQUIRED_FIELD}</span>
+        )}
         {errors.name && errors.name.type == 'pattern' && (
-          <span className="error-message">This field can't contain numbers</span>
+          <span className="error-message">{VALIDATION_ERROR_MESSAGES.NON_DIGIT_PATTERN}</span>
         )}
       </div>
 
@@ -30,7 +41,7 @@ export const MainForm = () => {
       </label>
       <div className="input-container">
         <input className="input" type="date" {...register('birthdate', { required: true })} />
-        {errors.birthdate && <span className="error-message">This field is required</span>}
+        {errors.birthdate && <span className="error-message">{VALIDATION_ERROR_MESSAGES.REQUIRED_FIELD}</span>}
       </div>
 
       <label htmlFor="sex" className="input-label">
@@ -44,7 +55,7 @@ export const MainForm = () => {
           <option value="Male">Male</option>
           <option value="Female">Female</option>
         </select>
-        {errors.sex && <span className="error-message">This field is required</span>}
+        {errors.sex && <span className="error-message">{VALIDATION_ERROR_MESSAGES.REQUIRED_FIELD}</span>}
       </div>
       <label htmlFor="city" className="input-label">
         City
@@ -62,7 +73,7 @@ export const MainForm = () => {
               </option>
             ))}
         </select>
-        {errors.city && <span className="error-message">This field is required</span>}
+        {errors.city && <span className="error-message">{VALIDATION_ERROR_MESSAGES.REQUIRED_FIELD}</span>}
       </div>
       <label htmlFor="doctorSpeciality" className="input-label">
         Doctor speciality
@@ -79,7 +90,7 @@ export const MainForm = () => {
               </option>
             ))}
         </select>
-        {errors.doctorSpeciality && <span className="error-message">This field is required</span>}
+        {errors.doctorSpeciality && <span className="error-message">{VALIDATION_ERROR_MESSAGES.REQUIRED_FIELD}</span>}
       </div>
 
       <label htmlFor="doctor" className="input-label">
@@ -97,7 +108,7 @@ export const MainForm = () => {
               </option>
             ))}
         </select>
-        {errors.doctor && <span className="error-message">This field is required</span>}
+        {errors.doctor && <span className="error-message">{VALIDATION_ERROR_MESSAGES.REQUIRED_FIELD}</span>}
       </div>
 
       <label htmlFor="email" className="input-label">
@@ -109,10 +120,10 @@ export const MainForm = () => {
           id="email"
           type="email"
           placeholder="mail@post.com"
-          {...register('email', { required: true, pattern: /^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/ })}
+          {...register('email', { required: isEmailRequired, pattern: /^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/ })}
         />
-        {errors.email && errors.email.type == 'required' && (
-          <span className="error-message">This field is required</span>
+        {errors.email && errors.email.type == 'required' && isEmailRequired && (
+          <span className="error-message">{VALIDATION_ERROR_MESSAGES.REQUIRED_EMAIL_OR_PHONE_NUMBER}</span>
         )}
       </div>
 
@@ -126,13 +137,14 @@ export const MainForm = () => {
           type="phone"
           placeholder="+380 999 99 99 99"
           {...register('phone', {
+            required: !isEmailRequired,
             pattern:
               /^[+]?[(]?[0-9]{2,3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{3}[-\s.]?([0-9]{2,3}|(([0-9]{4})|([0-9]{2}[-\s.]?[0-9]{2})))$/,
             //complicated phone number regex pattern
           })}
         />
         {errors.phone && errors.phone.type == 'pattern' && (
-          <span className="error-message">This number is not correct</span>
+          <span className="error-message">{VALIDATION_ERROR_MESSAGES.PHONE_NUMBER_PATTERN}</span>
         )}
       </div>
 
