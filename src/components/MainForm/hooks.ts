@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { fetchCitiesData, fetchDoctorSpecialtiesData, fetchDoctorsData } from './api';
+import { getCitiesData, getDoctorSpecialtiesData, getDoctorsData } from './api';
 import { CityOption, DoctorOption, DoctorSpecialityOption, Gender, Inputs } from './types';
 
 export const useMainForm = () => {
@@ -26,6 +26,8 @@ export const useMainForm = () => {
   const [age, setAge] = useState<number>();
   const [sex, setSex] = useState<Gender>();
   const [city, setCity] = useState<string>();
+  const [isEmailRequired, setIsEmailRequired] = useState<boolean>(true);
+
   const [doctorSpeciality, setDoctorSpeciality] = useState<string>();
 
   // filtered lists
@@ -33,9 +35,9 @@ export const useMainForm = () => {
   const [filteredDoctorSpecialties, setFilteredDoctorSpecialties] = useState<DoctorSpecialityOption[]>([]);
 
   useEffect(() => {
-    fetchCitiesData(setCities);
-    fetchDoctorSpecialtiesData(setDoctorSpecialties);
-    fetchDoctorsData(setDoctors);
+    getCitiesData().then(setCities);
+    getDoctorSpecialtiesData().then(setDoctorSpecialties);
+    getDoctorsData().then(setDoctors);
   }, []);
 
   const getAge = useCallback((birthday: Date) => {
@@ -58,6 +60,12 @@ export const useMainForm = () => {
 
         !values.city && setValue('city', doctor.cityId);
         !values.doctorSpeciality && setValue('doctorSpeciality', doctor.specialityId);
+      }
+      if (name == 'email') {
+        value.email && setIsEmailRequired(true);
+      }
+      if (name == 'phone') {
+        value.phone && setIsEmailRequired(false);
       }
     });
 
@@ -90,30 +98,44 @@ export const useMainForm = () => {
     setFilteredDoctors(filtered);
   }, [doctors, age, filteredDoctorSpecialties, city, doctorSpeciality]);
 
+  const isCorrectAge = useCallback(
+    (speciality: DoctorSpecialityOption) => {
+      if (typeof age === 'undefined') return true;
+
+      if (speciality?.params?.minAge) {
+        return speciality.params.minAge <= age;
+      }
+      if (speciality?.params?.maxAge) {
+        return speciality.params.maxAge >= age;
+      }
+      return true;
+    },
+    [age],
+  );
+
   // filter of Doctors Specialities list
   useEffect(() => {
     const filteredSpecialities = doctorSpecialties.filter((speciality) => {
-      let isOldEnough = true;
-      let isYoungEnough = true;
       let isCorrectSex = true;
 
-      if (typeof age !== 'undefined') {
-        if (speciality?.params?.minAge) {
-          isOldEnough = speciality.params.minAge <= age;
-        }
-        if (speciality?.params?.maxAge) {
-          isYoungEnough = speciality.params.maxAge >= age;
-        }
-      }
       if (sex && speciality?.params?.gender) {
         isCorrectSex = speciality.params.gender == sex;
       }
 
-      return isOldEnough && isYoungEnough && isCorrectSex;
+      return isCorrectAge(speciality) && isCorrectSex;
     });
 
     setFilteredDoctorSpecialties(filteredSpecialities);
-  }, [doctorSpecialties, age, sex]);
+  }, [doctorSpecialties, age, sex, isCorrectAge]);
 
-  return { register, handleSubmit, onSubmit, errors, cities, filteredDoctors, filteredDoctorSpecialties };
+  return {
+    register,
+    handleSubmit,
+    onSubmit,
+    errors,
+    cities,
+    filteredDoctors,
+    filteredDoctorSpecialties,
+    isEmailRequired,
+  };
 };
